@@ -36,10 +36,14 @@ const int CAPACITY_COEF = 30;
 const bool GRAPH_ON = 1;
 const bool GRAPH_OFF = 0;
 
+const char default_file_name[] = "dump.dot";
+
 enum mode
 {
-	PUSH,
-	REMOVE
+	PUSHAFTER,
+	PUSHBEFORE,
+	REMOVE,
+	LIST
 };
 
 //-------------------------------------------------------------------
@@ -105,5 +109,7 @@ long ListCountHash(list_t* list);
 error_t ListVerificator(list_t* list, int space);
 
 void DrowGraph(list_t* list, int space, int mode);
+
+error_t ListDump(list_t* list, const char* file_name = default_file_name, error_t err = (error_t)0);
 
 #endif

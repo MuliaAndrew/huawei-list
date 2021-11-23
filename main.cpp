@@ -1,17 +1,21 @@
-#include "SL_List.h"
+#include "List.h"
 
 
 int main()
 {
 	list_t list = {};
 
-	char f[] = "TestSave.txt";
-
-	ListDownload(f, &list);
+	ListDownload("TestSave.txt", &list);
 
 	ListSave("SaveTestSave.txt", &list);
 
 	ListPushAfter(&list, 3, 22.22, GRAPH_ON);
+
+	ListRemove(&list, 4);
+
+	ListPushBefore(&list, 3, 11.11);
+
+	ListDump(&list);
 
 	/* ListCtor(&list);
 

@@ -1,4 +1,5 @@
 *.dot
-*.png
+test.dot.png
+temp.dot.png
 *.txt
-testlist.exe
+*.exe

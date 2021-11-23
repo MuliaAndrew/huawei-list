@@ -1,4 +1,5 @@
-#include "SL_List.h"
+#include <string.h>
+#include "List.h"
 
 static error_t ERR = (error_t)0;
 
@@ -53,7 +54,7 @@ error_t ListPushAfter(list_t* list, int space, list_data_t num, bool GRAPH)
 			list->hash = ListCountHash(list);
 
 		if (GRAPH == GRAPH_ON)
-			DrowGraph(list, space, PUSH);
+			DrowGraph(list, space, PUSHAFTER);
 
 		return NO_ERROR;
 	}
@@ -91,7 +92,7 @@ error_t ListPushAfter(list_t* list, int space, list_data_t num, bool GRAPH)
 			list->hash = ListCountHash(list);
 
 		if (GRAPH == GRAPH_ON)
-			DrowGraph(list, space, PUSH);
+			DrowGraph(list, space, PUSHAFTER);
 
 		return ListVerificator(list, space);
 	}	
@@ -122,7 +123,7 @@ error_t ListPushBefore(list_t* list, int space, list_data_t num, bool GRAPH)
 			list->hash = ListCountHash(list);
 
 		if (GRAPH == GRAPH_ON)
-			DrowGraph(list, space, PUSH);
+			DrowGraph(list, space, PUSHBEFORE);
 
 		return NO_ERROR;
 	}
@@ -164,7 +165,7 @@ error_t ListPushBefore(list_t* list, int space, list_data_t num, bool GRAPH)
 			list->hash = ListCountHash(list);
 
 		if (GRAPH == GRAPH_ON)
-			DrowGraph(list, space, PUSH);
+			DrowGraph(list, space, PUSHBEFORE);
 
 		return ListVerificator(list, space);
 	}
@@ -442,7 +443,7 @@ void DrowGraph(list_t* list, int space, int mode)
 
 	assert(graph);
 
-	if (mode == PUSH)
+	if (mode == PUSHAFTER)
 	{
 		int space3 = list->elem[space].next;
 
@@ -488,11 +489,177 @@ void DrowGraph(list_t* list, int space, int mode)
 	             		space2, data2, next2_before, next2_after, prev2_before, prev2_after,
 	             		space3, data3, next3, prev3);
 	}
+	else if (mode == PUSHBEFORE)
+	{
+		int space3 = list->elem[space].prev;
+
+		//----------------------------------------------------
+		//node_prev
+		int space1 = list->elem[space3].prev;
+		list_data_t data1= list->elem[space1].data;
+		int next1_before = list->elem[space3].next;
+		int next1_after = list->elem[space1].next;
+		int prev1_before = list->elem[space].prev;
+		int prev1_after = list->elem[space].prev;
+
+		//----------------------------------------------------
+		//node_space
+		int space2 = space;
+		list_data_t data2 = list->elem[space2].data;
+		int next2_before = list->elem[space2].next;
+		int next2_after = list->elem[space2].next;
+		int prev2_before = list->elem[space3].prev;
+		int prev2_after = list->elem[space2].prev;
+
+		//----------------------------------------------------
+		//node_new_prev
+
+		list_data_t data3 = list->elem[space3].data;
+		int next3 = list->elem[space3].next;
+		int prev3 = list->elem[space3].prev;
+
+		fprintf(graph,  "digraph push {\n"
+						"	graph [rankdir=\"LR\"];\n"
+						"	node [shape=record];\n"
+						"	struct1 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d : %d|<f3> prev = %d : %d\",\n"
+	             		"		fillcolor=blue];\n"
+	             		"	struct2 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d : %d|<f3> prev = %d : %d\",\n"
+	             		"		fillcolor=blue];\n"
+	             		"	struct3 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d|<f3> prev = %d\"];\n\n"
+	             		"	struct2:f3 -> struct3:f3;\n"
+	             		"	struct2:f0 -> struct3:f2;\n"
+	             		"	struct3:f0 -> struct1:f2;\n"
+	             		"	struct3:f0 -> struct2:f3;\n"
+	             		"	struct1:f0 -> struct2:f3 [style=dotted];\n"
+	             		"	struct2:f0 -> struct1:f2 [style=dotted];}\n",
+	             		space1, data1, next1_before, next1_after, prev1_before, prev1_after,
+	             		space2, data2, next2_before, next2_after, prev2_before, prev2_after,
+	             		space3, data3, next3, prev3);
+	}
 	else if (mode == REMOVE)
 	{
+		//----------------------------------------------------
+		//node_rm
+		int space3 = space;
+		list_data_t data3 = list->elem[space3].data;
+		int next3 = list->elem[space3].next;
+		int prev3 = list->elem[space3].prev;
 
+		//----------------------------------------------------
+		//node_next
+		int space2 = list->elem[space3].next;
+		list_data_t data2 = list->elem[space2].data;
+		int next2_before = list->elem[space2].next;
+		int next2_after = list->elem[space2].next;
+		int prev2_before = list->elem[space2].prev;
+		int prev2_after = list->elem[space3].prev;
+
+		//----------------------------------------------------
+		//node_prev
+		int space1 = list->elem[space3].prev;
+		list_data_t data1 = list->elem[space1].data;
+		int next1_before = list->elem[space1].next;
+		int next1_after = list->elem[space3].next;
+		int prev1_before = list->elem[space3].prev;
+		int prev1_after = list->elem[space3].prev;
+
+		fprintf(graph,  "digraph remove {\n"
+						"	graph [rankdir=\"LR\"];\n"
+						"	node [shape=record];\n"
+						"	struct1 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d : %d|<f3> prev = %d : %d\",\n"
+	             		"		fillcolor=green];\n"
+	             		"	struct2 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d : %d|<f3> prev = %d : %d\",\n"
+	             		"		fillcolor=green];\n"
+	             		"	struct3 [label=\"<f0> %d|<f1> data = %lg|<f2> next = %d|<f3> prev = %d\"];\n\n"
+	             		"	struct3:f3 -> struct1:f0 [style=dotted];\n"
+	             		"	struct3:f2 -> struct2:f0 [style=dotted];\n"
+	             		"	struct1:f2 -> struct3:f0 [style=dotted];\n"
+	             		"	struct2:f3 -> struct3:f0 [style=dotted];\n"
+	             		"	struct1:f2 -> struct2:f0;\n"
+	             		"	struct2:f3 -> struct1:f0;}\n",
+	             		space1, data1, next1_before, next1_after, prev1_before, prev1_after,
+	             		space2, data2, next2_before, next2_after, prev2_before, prev2_after,
+	             		space3, data3, next3, prev3);
 	}
 	fclose(graph);
 
 	system("dot -Tpng -O temp.dot");
+}
+
+error_t ListDump(list_t* list, const char* file_name, error_t err)
+{
+	ptr_ver(list);
+
+	FILE* dump = fopen(file_name, "wb");
+
+	fprintf(dump,	"digraph remove {\n"
+					"	graph [rankdir=\"UD\"];\n"
+					"	node [shape=record];\n"
+					"	struct_params [label=\"{<head> head = %d |<tail> tail = %d |<free_space> free_space = %d}\"];\n",
+					list->head, list->tail, list->free_space);
+
+	for (int space = 1; space < list->capacity; space++)
+		fprintf(dump, 	"	struct_elem%d [label=\"{<space> %d |<data> data = %lg |<next> next = %d |<prev> prev = %d}\"];\n", 
+						space, space, list->elem[space].data, list->elem[space].next, list->elem[space].prev);
+
+	for (int space = list->head; space != list->tail;)
+	{
+		int next = list->elem[space].next;
+
+		fprintf(dump,	"	struct_elem%d:next -> struct_elem%d:space;\n"
+						"	struct_elem%d:prev -> struct_elem%d:space;\n",
+						space, next, next, space);
+
+		space = next;
+	}
+
+	for (int space = list->free_space, next = list->elem[space].next; next != 0; next = list->elem[space].next)
+	{
+		fprintf(dump, 	"	struct_elem%d:next -> struct_elem%d:space;\n", space, next);
+
+		space = next;
+	}
+
+	fprintf(dump, 	"	struct_params:head -> struct_elem%d:space;\n"
+					"	struct_params:tail -> struct_elem%d:space;\n"
+					"	struct_params:free_space -> struct_elem%d:space;}\n",
+					list->head, list->tail, list->free_space);
+
+	fclose(dump);
+
+	int len1 = strlen("dot -Tpng -O ");
+	int len2 = strlen(file_name);
+
+	char* cmd_msg = (char*)calloc(len1 + len2 + 2, sizeof(char));
+
+	strcpy(cmd_msg, "dot -Tpng -O ");
+	strcat(cmd_msg, file_name);
+	strcat(cmd_msg, "\n");
+
+	system(cmd_msg);
+
+	return NO_ERROR;
+}
+
+list_data_t ListShowElem(list_t* list, space)
+{
+	ptr_ver(list);
+
+	return list->elem[space].data;
+}
+
+list_data_t SlowListShowElem(list_t* list, logic_space)
+{
+	ptr_ver(list);
+
+	int n = list->head;
+	int iter = 0;
+
+	while (n != logic_space && iter < list->capacity)
+	{
+		n = lest->elem[space].next;
+		iter++;
+	}
+
+	return list->elem[n].data;
 }
